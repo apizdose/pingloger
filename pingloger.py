@@ -17,12 +17,28 @@ def statuscheck(addr):
         return True
     else: return False
 
+def statuscheckNT(addr):    
+    try:
+        st=os.popen("ping -n 1 "+addr).read()
+        time.sleep(0.1)    
+        st=str(st)
+    except:return False
+    if 'TTL' in st: 
+        return True
+    else: return False
 
 while(True):
     time.sleep(0.5)
-    if not statuscheck(dst):
-        with open(f"{srv}_ping_log.txt","a") as log:
-            
-            log.writelines(f"{datetime.now().strftime('%D %H:%M:%S')} >> Ping Failed!!!\n")
-    
+    if os.name == "nt":
+        if not statuscheckNT(dst):
+            with open(f"{srv}_ping_log.txt","a") as log:            
+                log.writelines(f"{datetime.now().strftime('%D %H:%M:%S')} >> Ping Failed!!! (addr: {dst})\n")
+    elif os.name == "posix":            
+        if not statuscheck(dst):
+            with open(f"{srv}_ping_log.txt","a") as log:                
+                log.writelines(f"{datetime.now().strftime('%D %H:%M:%S')} >> Ping Failed!!!(addr: {dst})\n")
+    else:
+        print("Not supported your operating system.")
+        break
+        
 
